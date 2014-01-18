@@ -119,6 +119,20 @@ func (this *Feed) readRss2(doc *xmlx.Document) (err error) {
 			i.Title = item.S(ns, "title")
 			i.Description = item.S(ns, "description")
 
+			var origEnclosureLink string
+			tl = item.SelectNodes("http://rssnamespace.org/feedburner/ext/1.0", "*")
+
+			for _, lv := range tl {
+				if lv.Name.Local == "origEnclosureLink" {
+					origEnclosureLink = lv.GetValue()
+				}
+				if lv.Name.Local == "origLink" {
+					lnk := new(Link)
+					lnk.Href = lv.GetValue()
+					i.Links = append(i.Links, lnk)
+				}
+			}
+
 			tl = item.SelectNodes(ns, "link")
 			for _, v := range tl {
 				lnk := new(Link)
@@ -151,9 +165,12 @@ func (this *Feed) readRss2(doc *xmlx.Document) (err error) {
 			}
 
 			tl = item.SelectNodes(ns, "enclosure")
-			for _, lv := range tl {
+			for index, lv := range tl {
 				enc := new(Enclosure)
 				enc.Url = lv.As(ns, "url")
+				if index == 0 && origEnclosureLink != "" {
+					enc.Url = origEnclosureLink
+				}
 				enc.Length = lv.Ai64(ns, "length")
 				enc.Type = lv.As(ns, "type")
 				i.Enclosures = append(i.Enclosures, enc)
