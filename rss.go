@@ -2,6 +2,7 @@ package feeder
 
 import (
   "errors"
+
   xmlx "github.com/jteeuwen/go-pkg-xmlx"
 )
 
@@ -120,6 +121,7 @@ func (this *Feed) readRss2(doc *xmlx.Document) (err error) {
 
       var origEnclosureLink string
       tl = item.SelectNodes("http://rssnamespace.org/feedburner/ext/1.0", "*")
+
       for _, lv := range tl {
         if lv.Name.Local == "origEnclosureLink" {
           origEnclosureLink = lv.GetValue()
@@ -131,7 +133,7 @@ func (this *Feed) readRss2(doc *xmlx.Document) (err error) {
         }
       }
 
-      tl := item.SelectNodes(ns, "link")
+      tl = item.SelectNodes(ns, "link")
       for _, v := range tl {
         lnk := new(Link)
         lnk.Href = v.GetValue()
